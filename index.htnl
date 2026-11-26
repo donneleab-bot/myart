@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой Космический Сайт</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a0a1a 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Звёзды и пыль */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        .dust {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 8s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-20px) translateX(10px); }
+            50% { transform: translateY(-40px) translateX(-10px); }
+            75% { transform: translateY(-20px) translateX(15px); }
+        }
+
+        /* Модальное окно 18+ */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 50px rgba(138, 43, 226, 0.5);
+        }
+
+        .modal-content h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #ff6b9d;
+        }
+
+        .modal-content p {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(138, 43, 226, 0.5);
+        }
+
+        /* Основной контейнер */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        /* Аватарка */
+        .avatar-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            object-fit: cover;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+        }
+
+        .avatar-upload-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            transition: all 0.3s;
+        }
+
+        .avatar-upload-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Секции */
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+            color: #ff6b9d;
+        }
+
+        /* Формы */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a0a0a0;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1em;
+        }
+
+        input[type="file"] {
+            color: white;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Ссылки */
+        .links-list {
+            list-style: none;
+        }
+
+        .links-list li {
+            margin: 10px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .link-info {
+            flex: 1;
+        }
+
+        .links-list a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 1.1em;
+        }
+
+        .links-list a:hover {
+            color: #ff6b9d;
+        }
+
+        .link-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Галерея */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .gallery-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .gallery-item-content {
+            padding: 15px;
+        }
+
+        .gallery-item-content h3 {
+            margin-bottom: 10px;
+            color: #ff6b9d;
+        }
+
+        .copyright {
+            font-size: 0.85em;
+            color: #a0a0a0;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .gallery-item-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Разделы */
+        .sections-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .section-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .section-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .section-card-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .age-warning {
+            background: rgba(255, 107, 157, 0.2);
+            border: 1px solid #ff6b9d;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        /* Модальное окно редактирования */
+        .edit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .edit-modal.active {
+            display: flex;
+        }
+
+        .edit-modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 50px rgba(138, 43, 226, 0.5);
+        }
+
+        .edit-modal-content h3 {
+            margin-bottom: 20px;
+            color: #ff6b9d;
+        }
+    </style>
+</head>
+<body>
+    <!-- Звёзды и пыль -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Модальное окно 18+ -->
+    <div class="modal active" id="ageModal">
+        <div class="modal-content">
+            <h2>⚠️ 18+</h2>
+            <p>Этот сайт содержит материалы, предназначенные только для лиц старше 18 лет. Некоторые разделы могут содержать контент для взрослых.</p>
+            <p>Подтверждаете ли вы, что вам исполнилось 18 лет?</p>
+            <button class="btn btn-primary" onclick="confirmAge()">Да, мне есть 18</button>
+            <button class="btn btn-secondary" onclick="denyAge()">Нет, мне нет 18</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования ссылки -->
+    <div class="edit-modal" id="editLinkModal">
+        <div class="edit-modal-content">
+            <h3>Редактировать ссылку</h3>
+            <form id="editLinkForm">
+                <div class="form-group">
+                    <label>Название:</label>
+                    <input type="text" id="editLinkTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>URL:</label>
+                    <input type="url" id="editLinkUrl" required>
+                </div>
+                <input type="hidden" id="editLinkIndex">
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditLinkModal()">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="container" id="mainContent" style="display: none;">
+        <header>
+            <h1>✨ Мой Космический Сайт ✨</h1>
+            <p>Добро пожаловать в мой персональный уголок вселенной</p>
+        </header>
+
+        <!-- Аватарка -->
+        <div class="avatar-section">
+            <div class="avatar-container">
+                <div class="avatar" id="avatar">👤</div>
+                <button class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()">📷</button>
+                <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="uploadAvatar(event)">
+            </div>
+        </div>
+
+        <!-- Ссылки -->
+        <div class="section">
+            <h2>🔗 Мои ссылки</h2>
+            <form id="linkForm">
+                <div class="form-group">
+                    <label>Название:</label>
+                    <input type="text" id="linkTitle" required placeholder="Например: Мой Instagram">
+                </div>
+                <div class="form-group">
+                    <label>URL:</label>
+                    <input type="url" id="linkUrl" required placeholder="https://...">
+                </div>
+                <button type="submit" class="btn btn-primary">Добавить ссылку</button>
+            </form>
+            <ul class="links-list" id="linksList"></ul>
+        </div>
+
+        <!-- Создание разделов -->
+        <div class="section">
+            <h2>📁 Создание разделов</h2>
+            <form id="sectionForm">
+                <div class="form-group">
+                    <label>Название раздела:</label>
+                    <input type="text" id="sectionName" required placeholder="Например: Фотографии">
+                </div>
+                <div class="form-group">
+                    <label>Описание:</label>
+                    <textarea id="sectionDescription" placeholder="Описание раздела..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="sectionAdult">
+                        Контент 18+
+                    </label>
+                    <div class="age-warning" id="ageWarning" style="display: none;">
+                        ⚠️ Этот раздел будет помечен как контент для взрослых
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Создать раздел</button>
+            </form>
+            <div class="sections-list" id="sectionsList"></div>
+        </div>
+
+        <!-- Загрузка изображений -->
+        <div class="section">
+            <h2>🖼️ Загрузка изображений</h2>
+            <form id="imageForm">
+                <div class="form-group">
+                    <label>Выберите раздел:</label>
+                    <select id="imageSection" required>
+                        <option value="">Выберите раздел...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Название:</label>
+                    <input type="text" id="imageTitle" required placeholder="Название изображения">
+                </div>
+                <div class="form-group">
+                    <label>Описание:</label>
+                    <textarea id="imageDescription" placeholder="Описание изображения..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Изображение:</label>
+                    <input type="file" id="imageFile" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label>Авторские права:</label>
+                    <input type="text" id="imageCopyright" placeholder="© Ваше имя, 2024" value="© Все права защищены">
+                </div>
+                <button type="submit" class="btn btn-primary">Загрузить изображение</button>
+            </form>
+            <div class="gallery" id="gallery"></div>
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Google API (подготовлено для будущего подключения) -->
+    <!-- <script src="https://apis.google.com/js/api.js"></script> -->
+    <!-- <script src="https://accounts.google.com/gsi/client"></script> -->
+    
+    <script>
+        // Инициализация Supabase
+        // Замени эти значения на свои из Supabase Dashboard
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Google Drive API конфигурация (подготовлено для будущего подключения)
+        const GOOGLE_DRIVE_CONFIG = {
+            CLIENT_ID: 'YOUR_GOOGLE_CLIENT_ID',
+            API_KEY: 'YOUR_GOOGLE_API_KEY',
+            SCOPES: 'https://www.googleapis.com/auth/drive.file',
+            FOLDER_ID: 'YOUR_GOOGLE_DRIVE_FOLDER_ID'
+        };
+
+        // Функции для Google Drive (подготовлены для будущего подключения)
+        /*
+        async function initGoogleDrive() {
+            await gapi.client.init({
+                apiKey: GOOGLE_DRIVE_CONFIG.API_KEY,
+                clientId: GOOGLE_DRIVE_CONFIG.CLIENT_ID,
+                discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+                scope: GOOGLE_DRIVE_CONFIG.SCOPES
+            });
+        }
+
+        async function uploadToGoogleDrive(file, fileName) {
+            const accessToken = gapi.auth.getToken().access_token;
+            const metadata = {
+                name: fileName,
+                mimeType: file.type,
+                parents: [GOOGLE_DRIVE_CONFIG.FOLDER_ID]
+            };
+
+            const form = new FormData();
+            form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+            form.append('file', file);
+
+            const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                method: 'POST',
+                headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
+                body: form
+            });
+
+            return await response.json();
+        }
+
+        async function deleteFromGoogleDrive(fileId) {
+            const accessToken = gapi.auth.getToken().access_token;
+            await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+                method: 'DELETE',
+                headers: new Headers({ 'Authorization': 'Bearer ' + accessToken })
+            });
+        }
+        */
+
+        // Создание звёзд и пыли
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+
+            for (let i = 0; i < 50; i++) {
+                const dust = document.createElement('div');
+                dust.className = 'dust';
+                dust.style.width = Math.random() * 5 + 2 + 'px';
+                dust.style.height = dust.style.width;
+                dust.style.left = Math.random() * 100 + '%';
+                dust.style.top = Math.random() * 100 + '%';
+                dust.style.animationDelay = Math.random() * 8 + 's';
+                starsContainer.appendChild(dust);
+            }
+        }
+
+        // Подтверждение возраста
+        function confirmAge() {
+            document.getElementById('ageModal').classList.remove('active');
+            document.getElementById('mainContent').style.display = 'block';
+            localStorage.setItem('ageConfirmed', 'true');
+        }
+
+        function denyAge() {
+            window.location.href = 'https://www.google.com';
+        }
+
+        function checkAgeConfirmation() {
+            if (localStorage.getItem('ageConfirmed') === 'true') {
+                document.getElementById('ageModal').classList.remove('active');
+                document.getElementById('mainContent').style.display = 'block';
+            }
+        }
+
+        // Данные
+        let links = JSON.parse(localStorage.getItem('links')) || [];
+        let sections = JSON.parse(localStorage.getItem('sections')) || [];
+        let images = JSON.parse(localStorage.getItem('images')) || [];
+        let avatar = localStorage.getItem('avatar') || null;
+
+        // Аватарка
+        function uploadAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                avatar = e.target.result;
+                localStorage.setItem('avatar', avatar);
+                displayAvatar();
+                
+                // TODO: Загрузка в Google Drive
+                // uploadToGoogleDrive(file, 'avatar.jpg').then(result => {
+                //     console.log('Avatar uploaded to Google Drive:', result);
+                // });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function displayAvatar() {
+            const avatarElement = document.getElementById('avatar');
+            if (avatar) {
+                avatarElement.innerHTML = `<img src="${avatar}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            } else {
+                avatarElement.innerHTML = '👤';
+            }
+        }
+
+        // Ссылки
+        function renderLinks() {
+            const linksList = document.getElementById('linksList');
+            linksList.innerHTML = links.map((link, index) => `
+                <li>
+                    <div class="link-info">
+                        <a href="${link.url}" target="_blank">${link.title}</a>
+                    </div>
+                    <div class="link-actions">
+                        <button class="btn btn-edit btn-small" onclick="openEditLinkModal(${index})">Редактировать</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteLink(${index})">Удалить</button>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        document.getElementById('linkForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const link = {
+                title: document.getElementById('linkTitle').value,
+                url: document.getElementById('linkUrl').value
+            };
+            
+            // TODO: Сохранение в Supabase
+            // const { data, error } = await supabase.from('links').insert([link]);
+            
+            links.push(link);
+            localStorage.setItem('links', JSON.stringify(links));
+            renderLinks();
+            e.target.reset();
+        });
+
+        function openEditLinkModal(index) {
+            document.getElementById('editLinkTitle').value = links[index].title;
+            document.getElementById('editLinkUrl').value = links[index].url;
+            document.getElementById('editLinkIndex').value = index;
+            document.getElementById('editLinkModal').classList.add('active');
+        }
+
+        function closeEditLinkModal() {
+            document.getElementById('editLinkModal').classList.remove('active');
+        }
+
+        document.getElementById('editLinkForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const index = document.getElementById('editLinkIndex').value;
+            links[index] = {
+                title: document.getElementById('editLinkTitle').value,
+                url: document.getElementById('editLinkUrl').value
+            };
+            localStorage.setItem('links', JSON.stringify(links));
+            renderLinks();
+            closeEditLinkModal();
+        });
+
+        function deleteLink(index) {
+            if (confirm('Удалить эту ссылку?')) {
+                links.splice(index, 1);
+                localStorage.setItem('links', JSON.stringify(links));
+                renderLinks();
+            }
+        }
+
+        // Разделы
+        function renderSections() {
+            const sectionsList = document.getElementById('sectionsList');
+            sectionsList.innerHTML = sections.map((section, index) => `
+                <div class="section-card">
+                    <h3>${section.name}</h3>
+                    <p>${section.description || ''}</p>
+                    ${section.isAdult ? '<div class="age-warning">18+</div>' : ''}
+                    <div class="section-card-actions">
+                        <button class="btn btn-danger btn-small" onclick="deleteSection(${index})">Удалить</button>
+                    </div>
+                </div>
+            `).join('');
+
+            const imageSection = document.getElementById('imageSection');
+            imageSection.innerHTML = '<option value="">Выберите раздел...</option>' + 
+                sections.map((section, index) => `
+                    <option value="${index}">${section.name}</option>
+                `).join('');
+        }
+
+        document.getElementById('sectionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const section = {
+                name: document.getElementById('sectionName').value,
+                description: document.getElementById('sectionDescription').value,
+                isAdult: document.getElementById('sectionAdult').checked
+            };
+            
+            // TODO: Сохранение в Supabase
+            // const { data, error } = await supabase.from('sections').insert([section]);
+            
+            sections.push(section);
+            localStorage.setItem('sections', JSON.stringify(sections));
+            renderSections();
+            e.target.reset();
+        });
+
+        function deleteSection(index) {
+            if (confirm('Удалить этот раздел и все изображения в нём?')) {
+                sections.splice(index, 1);
+                images = images.filter(img => img.sectionIndex != index);
+                localStorage.setItem('sections', JSON.stringify(sections));
+                localStorage.setItem('images', JSON.stringify(images));
+                renderSections();
+                renderGallery();
+            }
+        }
+
+        document.getElementById('sectionAdult').addEventListener('change', (e) => {
+            document.getElementById('ageWarning').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        // Изображения
+        document.getElementById('imageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('imageFile');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const image = {
+                    id: Date.now(),
+                    sectionIndex: document.getElementById('imageSection').value,
+                    title: document.getElementById('imageTitle').value,
+                    description: document.getElementById('imageDescription').value,
+                    copyright: document.getElementById('imageCopyright').value,
+                    data: event.target.result,
+                    fileName: file.name
+                };
+
+                // TODO: Загрузка в Google Drive
+                // const driveResult = await uploadToGoogleDrive(file, file.name);
+                // image.driveFileId = driveResult.id;
+                
+                // TODO: Сохранение в Supabase
+                // const { data, error } = await supabase.from('images').insert([image]);
+                
+                images.push(image);
+                localStorage.setItem('images', JSON.stringify(images));
+                renderGallery();
+                e.target.reset();
+            };
+            
+            reader.readAsDataURL(file);
+        });
+
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = images.map((image, index) => `
+                <div class="gallery-item">
+                    <img src="${image.data}" alt="${image.title}">
+                    <div class="gallery-item-content">
+                        <h3>${image.title}</h3>
+                        <p>${image.description || ''}</p>
+                        <div class="copyright">${image.copyright}</div>
+                        <div class="gallery-item-actions">
+                            <button class="btn btn-danger btn-small" onclick="deleteImage(${index})">Удалить</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteImage(index) {
+            if (confirm('Удалить это изображение?')) {
+                const image = images[index];
+                
+                // TODO: Удаление из Google Drive
+                // if (image.driveFileId) {
+                //     await deleteFromGoogleDrive(image.driveFileId);
+                // }
+                
+                images.splice(index, 1);
+                localStorage.setItem('images', JSON.stringify(images));
+                renderGallery();
+            }
+        }
+
+        // Инициализация
+        createStars();
+        checkAgeConfirmation();
+        displayAvatar();
+        renderLinks();
+        renderSections();
+        renderGallery();
+    </script>
+</body>
+</html>
